@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Privilege: Datamate CPQ (the group selector in Settings > Users) -->
+    <record id="privilege_datamate_cpq" model="res.groups.privilege">
+        <field name="name">Datamate CPQ</field>
+        <field name="sequence">50</field>
+        <field name="placeholder">No Access</field>
+        <field name="category_id" ref="base.module_category_sales"/>
+    </record>
+
+    <!-- Group C: External Distributor (base level) -->
+    <record id="group_datamate_distributor" model="res.groups">
+        <field name="name">External Distributor</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="privilege_datamate_cpq"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Can view sale orders and public product info. No access to internal pricing tiers or margins.</field>
+    </record>
+
+    <!-- Group B: Internal Sales (implies Distributor) -->
+    <record id="group_datamate_sales" model="res.groups">
+        <field name="name">Internal Sales</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="privilege_datamate_cpq"/>
+        <field name="implied_ids" eval="[(4, ref('group_datamate_distributor'))]"/>
+        <field name="comment">Read-only on master data. Can write custom proposal notes. Can view min_cutoff and transfer_price on SO lines.</field>
+    </record>
+
+    <!-- Group A: Management (implies Internal Sales) -->
+    <record id="group_datamate_management" model="res.groups">
+        <field name="name">Management</field>
+        <field name="sequence">30</field>
+        <field name="privilege_id" ref="privilege_datamate_cpq"/>
+        <field name="implied_ids" eval="[(4, ref('group_datamate_sales'))]"/>
+        <field name="comment">Full CRUD. Can view and edit all pricing tiers and internal margins everywhere.</field>
+    </record>
+
+</odoo>

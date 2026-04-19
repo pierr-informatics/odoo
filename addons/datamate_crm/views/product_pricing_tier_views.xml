@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Pricing Tier: Tree View -->
+    <record id="product_pricing_tier_view_tree" model="ir.ui.view">
+        <field name="name">product.pricing.tier.tree</field>
+        <field name="model">product.pricing.tier</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="bracket_size" string="Bracket (Beds)"/>
+                <field name="sale_price"/>
+                <field name="min_cutoff" groups="datamate_crm.group_datamate_sales"/>
+                <field name="transfer_price" groups="datamate_crm.group_datamate_sales"/>
+                <field name="mrp"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Pricing Tier: Form View -->
+    <record id="product_pricing_tier_view_form" model="ir.ui.view">
+        <field name="name">product.pricing.tier.form</field>
+        <field name="model">product.pricing.tier</field>
+        <field name="arch" type="xml">
+            <form string="Pricing Tier">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="name"/>
+                            <field name="bracket_size"/>
+                        </group>
+                        <group>
+                            <field name="sale_price"/>
+                            <field name="min_cutoff" groups="datamate_crm.group_datamate_sales"/>
+                            <field name="transfer_price" groups="datamate_crm.group_datamate_sales"/>
+                            <field name="mrp"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Pricing Tier: Action (for management standalone view) -->
+    <record id="action_product_pricing_tier" model="ir.actions.act_window">
+        <field name="name">Pricing Tiers</field>
+        <field name="res_model">product.pricing.tier</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No pricing tiers defined yet.
+            </p>
+            <p>Pricing tiers define the cumulative per-bed price brackets for CPQ modules.</p>
+        </field>
+    </record>
+
+</odoo>

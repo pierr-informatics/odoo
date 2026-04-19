@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Top-level menu for Datamate CPQ under Sales -->
+    <menuitem id="menu_datamate_cpq_root"
+              name="Datamate CPQ"
+              parent="sale.sale_menu_root"
+              sequence="30"/>
+
+    <!-- Pricing Tiers (management only) -->
+    <menuitem id="menu_pricing_tiers"
+              name="Pricing Tiers"
+              parent="menu_datamate_cpq_root"
+              action="action_product_pricing_tier"
+              groups="datamate_crm.group_datamate_management"
+              sequence="10"/>
+
+</odoo>

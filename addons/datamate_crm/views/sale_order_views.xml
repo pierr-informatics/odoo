@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend sale.order form: add custom proposal notes tab -->
+    <record id="sale_order_form_view_cpq" model="ir.ui.view">
+        <field name="name">sale.order.form.cpq</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Add a Proposal Notes tab after Other Info -->
+            <xpath expr="//page[@name='other_information']" position="after">
+                <page string="Proposal Notes" name="proposal_notes">
+                    <field name="custom_proposal_notes"
+                           placeholder="Executive summary or custom notes for the proposal PDF..."/>
+                </page>
+            </xpath>
+
+            <!-- Add CPQ computed columns to the SO line list (after the last price_subtotal optional field) -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_subtotal'][last()]" position="after">
+                <field name="computed_total_sale" string="CPQ Total" optional="show"/>
+                <field name="computed_total_mrp" string="MRP Total" optional="hide"/>
+                <field name="computed_total_min_cutoff" string="Min Cutoff Total"
+                       groups="datamate_crm.group_datamate_sales" optional="hide"/>
+                <field name="computed_total_transfer_price" string="Transfer Total"
+                       groups="datamate_crm.group_datamate_sales" optional="hide"/>
+                <field name="blended_avg_price" string="Blended Avg" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

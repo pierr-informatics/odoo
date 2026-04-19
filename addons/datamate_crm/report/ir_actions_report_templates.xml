@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Override the sale order PDF report to inject CPQ content -->
+    <template id="report_saleorder_document_cpq" inherit_id="sale.report_saleorder_document">
+
+        <!-- Inject executive summary / custom proposal notes above the line table -->
+        <xpath expr="//table[hasclass('o_main_table')]" position="before">
+            <div t-if="doc.custom_proposal_notes" class="mb-3">
+                <h5><strong>Executive Summary</strong></h5>
+                <div t-field="doc.custom_proposal_notes"/>
+            </div>
+        </xpath>
+
+        <!-- After the totals section, inject per-module proposal notes and T&C -->
+        <xpath expr="//div[@name='so_total_summary']" position="after">
+            <!-- Collect unique module products that have proposal notes or T&C -->
+            <t t-set="cpq_modules" t-value="doc.order_line.filtered(lambda l: l.product_id and l.product_id.product_tmpl_id.cpq_type == 'module')"/>
+
+            <!-- Module Feature Notes -->
+            <t t-set="has_notes" t-value="any(not is_html_empty(l.product_id.product_tmpl_id.preset_proposal_notes) for l in cpq_modules)"/>
+            <div t-if="has_notes" class="mt-4">
+                <h5><strong>Module Details</strong></h5>
+                <t t-set="seen_products" t-value="set()"/>
+                <t t-foreach="cpq_modules" t-as="mod_line">
+                    <t t-set="tmpl" t-value="mod_line.product_id.product_tmpl_id"/>
+                    <t t-if="tmpl.id not in seen_products and not is_html_empty(tmpl.preset_proposal_notes)">
+                        <t t-set="seen_products" t-value="seen_products | {tmpl.id}"/>
+                        <div class="mb-3">
+                            <h6><strong t-out="tmpl.name">Module Name</strong></h6>
+                            <div t-field="tmpl.preset_proposal_notes"/>
+                        </div>
+                    </t>
+                </t>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <t t-set="has_terms" t-value="any(not is_html_empty(l.product_id.product_tmpl_id.preset_terms_conditions) for l in cpq_modules)"/>
+            <div t-if="has_terms" class="mt-4">
+                <h5><strong>Terms &amp; Conditions</strong></h5>
+                <t t-set="seen_terms" t-value="set()"/>
+                <t t-foreach="cpq_modules" t-as="mod_line">
+                    <t t-set="tmpl" t-value="mod_line.product_id.product_tmpl_id"/>
+                    <t t-if="tmpl.id not in seen_terms and not is_html_empty(tmpl.preset_terms_conditions)">
+                        <t t-set="seen_terms" t-value="seen_terms | {tmpl.id}"/>
+                        <div class="mb-3">
+                            <h6><strong t-out="tmpl.name">Module Name</strong></h6>
+                            <div t-field="tmpl.preset_terms_conditions"/>
+                        </div>
+                    </t>
+                </t>
+            </div>
+
+            <!-- Static footer note -->
+            <div class="mt-4" style="font-size: 0.9em;">
+                <p><strong>Note:</strong> Sale price includes Sales and Distribution cost [30%].
+                AMC 20% (optional). If AMC is not taken, then updates and support will be provided
+                strictly on an on-call chargeable basis.</p>
+            </div>
+
+            <!-- Tagline -->
+            <div class="mt-3 text-center">
+                <p><strong>Startups pitch. We deliver.</strong></p>
+            </div>
+        </xpath>
+
+    </template>
+
+</odoo>

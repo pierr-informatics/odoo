@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend product.template form: add CPQ Configuration tab -->
+    <record id="product_template_form_view_cpq" model="ir.ui.view">
+        <field name="name">product.template.form.cpq</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='invoicing']" position="after">
+                <page string="CPQ Configuration" name="cpq_config">
+                    <group>
+                        <group>
+                            <field name="cpq_type"/>
+                        </group>
+                    </group>
+                    <group string="Pricing Tiers" invisible="cpq_type != 'module'">
+                        <field name="pricing_tier_ids" nolabel="1" context="{'default_product_tmpl_id': id}">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name"/>
+                                <field name="bracket_size" string="Bracket (Beds)"/>
+                                <field name="sale_price"/>
+                                <field name="min_cutoff" groups="datamate_crm.group_datamate_sales"/>
+                                <field name="transfer_price" groups="datamate_crm.group_datamate_sales"/>
+                                <field name="mrp"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="Proposal Content" invisible="cpq_type != 'module'">
+                        <field name="preset_proposal_notes" placeholder="Feature highlights for the proposal PDF..."/>
+                        <field name="preset_terms_conditions" placeholder="Legal / SLA terms for the proposal PDF..."/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
