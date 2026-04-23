@@ -17,6 +17,7 @@
             <field name="name">Ellider AI Suite</field>
             <field name="type">service</field>
             <field name="cpq_type">module</field>
+            <field name="main_product_id" ref="product_datamate_hospital_erp"/>
             <field name="list_price">0</field>
             <field name="sale_ok" eval="True"/>
             <field name="purchase_ok" eval="False"/>
@@ -92,6 +93,7 @@
             <field name="name">Dental EMR</field>
             <field name="type">service</field>
             <field name="cpq_type">module</field>
+            <field name="main_product_id" ref="product_datamate_hospital_erp"/>
             <field name="list_price">0</field>
             <field name="sale_ok" eval="True"/>
             <field name="purchase_ok" eval="False"/>

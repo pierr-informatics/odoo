@@ -32,16 +32,9 @@
                             <field name="quoted_total" string="Quoted Total" readonly="1" optional="show"/>
                             <field name="quoted_price_per_bed" string="Quoted / Bed" readonly="1" optional="show"/>
                             <field name="blended_avg_price" string="Dealer Price / Bed" readonly="1" optional="show"/>
+                            <field name="bracket_breakdown_html" string="Tier Breakdown" readonly="1" optional="hide"/>
                         </list>
                     </field>
-                    <!-- Breakdown HTML section -->
-                    <div class="mt-3">
-                        <field name="order_line" nolabel="1" readonly="1">
-                            <list>
-                                <field name="bracket_breakdown_html" string="Breakdown" widget="html" optional="show"/>
-                            </list>
-                        </field>
-                    </div>
                 </page>
             </xpath>
 

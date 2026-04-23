@@ -14,6 +14,12 @@ class ProductTemplate(models.Model):
         string='CPQ Type',
         help='Main Product: parent family shown as section header. Module: line item with tier pricing.',
     )
+    main_product_id = fields.Many2one(
+        comodel_name='product.template',
+        string='Main Product',
+        domain=[('cpq_type', '=', 'main_product')],
+        help='Parent main product this module belongs to. Used to auto-group lines on quotes.',
+    )
     pricing_tier_ids = fields.One2many(
         comodel_name='product.pricing.tier',
         inverse_name='product_tmpl_id',
