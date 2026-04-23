@@ -23,31 +23,31 @@ class ProductPricingTier(models.Model):
 
     # === Manual inputs ===
     transfer_price = fields.Float(
-        string='Transfer Price / Bed',
+        string='Base Cost / Bed',
         digits='Product Price',
     )
     margin_sale_to_transfer = fields.Float(
-        string='Sale→Transfer Margin (%)',
+        string='Dealer Margin (%)',
         default=40.0,
-        help='Margin from Sale Price down to Transfer Price. '
-             'E.g. 40 means Sale Price = Transfer / (1 - 0.40).',
+        help='Margin from Dealer Price down to Base Cost. '
+             'E.g. 40 means Dealer Price = Base Cost / (1 - 0.40).',
     )
     margin_mrp_to_sale = fields.Float(
-        string='MRP→Sale Margin (%)',
+        string='Trade Discount (%)',
         default=30.0,
-        help='Margin from MRP down to Sale Price. '
-             'E.g. 30 means MRP = Sale Price / (1 - 0.30).',
+        help='Margin from List Price down to Dealer Price. '
+             'E.g. 30 means List Price = Dealer Price / (1 - 0.30).',
     )
 
     # === Derived (read-only, computed & stored) ===
     sale_price = fields.Float(
-        string='Sale Price / Bed',
+        string='Dealer Price / Bed',
         compute='_compute_derived_prices',
         store=True,
         digits='Product Price',
     )
     mrp = fields.Float(
-        string='MRP / Bed',
+        string='List Price / Bed',
         compute='_compute_derived_prices',
         store=True,
         digits='Product Price',

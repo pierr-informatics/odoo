@@ -10,6 +10,86 @@
                 <h5><strong>Executive Summary</strong></h5>
                 <div t-field="doc.custom_proposal_notes"/>
             </div>
+
+            <!-- Per-module CPQ pricing breakdown tables (bracket + discount + quoted) -->
+            <t t-set="cpq_lines_pre" t-value="doc.order_line.filtered(lambda l: l.product_id and l.product_id.product_tmpl_id.cpq_type == 'module')"/>
+            <t t-if="cpq_lines_pre">
+                <div class="mt-3 mb-3">
+                    <h5><strong>Pricing Breakdown</strong></h5>
+                    <t t-foreach="cpq_lines_pre" t-as="cpq_l">
+                        <t t-set="tiers_sorted" t-value="cpq_l.product_id.product_tmpl_id.pricing_tier_ids.sorted('sequence')"/>
+                        <div class="mb-4">
+                            <h6><strong t-out="cpq_l.product_id.name">Module</strong>
+                                <span class="text-muted" style="font-weight:normal; font-size:0.9em;">
+                                &#160;&#8212;&#160;Total Beds: <t t-out="int(cpq_l.product_uom_qty)">0</t>
+                                </span>
+                            </h6>
+                            <table class="table table-sm table-bordered" style="font-size:12px; max-width:580px;">
+                                <thead style="background:#e8edf8;">
+                                    <tr>
+                                        <th class="text-end">From</th>
+                                        <th class="text-end">To</th>
+                                        <th class="text-end">List Price / Bed</th>
+                                        <th class="text-end">Beds</th>
+                                        <th class="text-end">List Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="bd_cursor" t-value="1"/>
+                                    <t t-set="bd_remaining" t-value="cpq_l.product_uom_qty"/>
+                                    <t t-foreach="tiers_sorted" t-as="bk_tier">
+                                        <t t-if="bd_remaining &gt; 0">
+                                            <t t-if="bk_tier_last or bk_tier.bracket_size &lt;= 0">
+                                                <t t-set="bk_beds" t-value="bd_remaining"/>
+                                            </t>
+                                            <t t-else="">
+                                                <t t-set="bk_beds" t-value="min(bd_remaining, bk_tier.bracket_size)"/>
+                                            </t>
+                                            <tr>
+                                                <td class="text-end"><t t-out="int(bd_cursor)">0</t></td>
+                                                <td class="text-end"><t t-out="int(bd_cursor + bk_beds - 1)">0</t></td>
+                                                <td class="text-end"><t t-out="'%.2f' % bk_tier.mrp">0.00</t></td>
+                                                <td class="text-end"><t t-out="int(bk_beds)">0</t></td>
+                                                <td class="text-end"><t t-out="'%.2f' % (bk_beds * bk_tier.mrp)">0.00</t></td>
+                                            </tr>
+                                            <t t-set="bd_cursor" t-value="bd_cursor + bk_beds"/>
+                                            <t t-set="bd_remaining" t-value="bd_remaining - bk_beds"/>
+                                        </t>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" class="text-end fw-bold">Total List Price</td>
+                                        <td class="text-end fw-bold">
+                                            <t t-out="'%.2f' % cpq_l.computed_total_mrp">0.00</t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="text-end text-muted">
+                                            Discount (<t t-out="'%.1f' % (cpq_l.mrp_discount or 0)">0.0</t>%)
+                                        </td>
+                                        <td class="text-end text-muted">
+                                            - <t t-out="'%.2f' % (cpq_l.computed_total_mrp - cpq_l.quoted_total)">0.00</t>
+                                        </td>
+                                    </tr>
+                                    <tr style="background:#f0f4ff;">
+                                        <td colspan="4" class="text-end fw-bold" style="color:#1a2e6e;">Quoted Total</td>
+                                        <td class="text-end fw-bold" style="color:#1a2e6e;">
+                                            <t t-out="'%.2f' % cpq_l.quoted_total">0.00</t>
+                                        </td>
+                                    </tr>
+                                    <tr style="background:#f0f4ff;">
+                                        <td colspan="4" class="text-end" style="color:#1a2e6e;">Quoted Price / Bed</td>
+                                        <td class="text-end" style="color:#1a2e6e;">
+                                            <t t-out="'%.2f' % cpq_l.quoted_price_per_bed">0.00</t>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
         </xpath>
 
         <!-- After the totals section, inject per-module proposal notes and T&C -->

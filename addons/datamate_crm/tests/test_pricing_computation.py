@@ -146,3 +146,32 @@ class TestPricingComputation(TransactionCase):
         expected_avg = expected_total / 186
         self.assertAlmostEqual(line.price_unit, expected_avg, places=2)
 
+    # --- Overflow beyond finite tiers ---
+
+    def test_overflow_exceeds_finite_tiers(self):
+        """600 beds: last tier (bracket_size=0) absorbs beds 301-600.
+        sale total: 50×10k + 50×8k + 100×7k + 100×6k + 300×5k = 3,200,000
+        """
+        line = self._create_order_line(600)
+        expected = (50 * 10000) + (50 * 8000) + (100 * 7000) + (100 * 6000) + (300 * 5000)
+        self.assertAlmostEqual(line.computed_total_sale, expected, places=2)
+
+    # --- MRP discount → quoted total ---
+
+    def test_mrp_discount_quoted_total(self):
+        """10% discount on Total List Price produces Quoted Total = MRP × 0.90."""
+        line = self._create_order_line(186)
+        mrp_total = line.computed_total_mrp
+        line.write({'mrp_discount': 10.0})
+        self.assertAlmostEqual(line.quoted_total, mrp_total * 0.90, places=2)
+        self.assertAlmostEqual(line.quoted_price_per_bed, (mrp_total * 0.90) / 186, places=2)
+
+    # --- ValidationError when quoted below dealer price ---
+
+    def test_quoted_below_sale_price_raises(self):
+        """A 99% discount brings quoted/bed far below dealer price → ValidationError."""
+        from odoo.exceptions import ValidationError
+        line = self._create_order_line(186)
+        with self.assertRaises(ValidationError):
+            line.write({'mrp_discount': 99.0})
+
