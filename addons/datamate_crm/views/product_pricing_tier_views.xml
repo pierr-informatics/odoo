@@ -10,10 +10,11 @@
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="bracket_size" string="Bracket (Beds)"/>
-                <field name="sale_price"/>
-                <field name="min_cutoff" groups="datamate_crm.group_datamate_sales"/>
-                <field name="transfer_price" groups="datamate_crm.group_datamate_sales"/>
-                <field name="mrp"/>
+                <field name="transfer_price"/>
+                <field name="margin_sale_to_transfer" string="Sale Margin (%)"/>
+                <field name="margin_mrp_to_sale" string="MRP Margin (%)"/>
+                <field name="sale_price" readonly="1"/>
+                <field name="mrp" readonly="1"/>
             </list>
         </field>
     </record>
@@ -32,10 +33,11 @@
                             <field name="bracket_size"/>
                         </group>
                         <group>
-                            <field name="sale_price"/>
-                            <field name="min_cutoff" groups="datamate_crm.group_datamate_sales"/>
-                            <field name="transfer_price" groups="datamate_crm.group_datamate_sales"/>
-                            <field name="mrp"/>
+                            <field name="transfer_price"/>
+                            <field name="margin_sale_to_transfer" string="Sale→Transfer Margin (%)"/>
+                            <field name="margin_mrp_to_sale" string="MRP→Sale Margin (%)"/>
+                            <field name="sale_price" readonly="1"/>
+                            <field name="mrp" readonly="1"/>
                         </group>
                     </group>
                 </sheet>

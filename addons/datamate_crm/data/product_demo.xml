@@ -38,55 +38,53 @@
         </record>
 
         <!-- Ellider AI Suite: Pricing Tiers -->
+        <!-- transfer_price is the only manual input; sale_price and mrp are computed via margins -->
+        <!-- sale = transfer / (1 - 0.40) = transfer / 0.60 -->
+        <!-- mrp  = sale    / (1 - 0.30) = sale    / 0.70 -->
         <record id="tier_ellider_1" model="product.pricing.tier">
             <field name="product_tmpl_id" ref="product_ellider_ai_suite"/>
             <field name="sequence">10</field>
             <field name="name">First 50 Beds</field>
             <field name="bracket_size">50</field>
-            <field name="sale_price">10000</field>
-            <field name="min_cutoff">8500</field>
-            <field name="mrp">16000</field>
-            <field name="transfer_price">7692</field>
+            <field name="transfer_price">6000</field>
+            <field name="margin_sale_to_transfer">40</field>
+            <field name="margin_mrp_to_sale">30</field>
         </record>
         <record id="tier_ellider_2" model="product.pricing.tier">
             <field name="product_tmpl_id" ref="product_ellider_ai_suite"/>
             <field name="sequence">20</field>
             <field name="name">Beds 51–100</field>
             <field name="bracket_size">50</field>
-            <field name="sale_price">8000</field>
-            <field name="min_cutoff">6800</field>
-            <field name="mrp">12800</field>
-            <field name="transfer_price">6154</field>
+            <field name="transfer_price">4800</field>
+            <field name="margin_sale_to_transfer">40</field>
+            <field name="margin_mrp_to_sale">30</field>
         </record>
         <record id="tier_ellider_3" model="product.pricing.tier">
             <field name="product_tmpl_id" ref="product_ellider_ai_suite"/>
             <field name="sequence">30</field>
             <field name="name">Beds 101–200</field>
             <field name="bracket_size">100</field>
-            <field name="sale_price">7000</field>
-            <field name="min_cutoff">5950</field>
-            <field name="mrp">11200</field>
-            <field name="transfer_price">5385</field>
+            <field name="transfer_price">4200</field>
+            <field name="margin_sale_to_transfer">40</field>
+            <field name="margin_mrp_to_sale">30</field>
         </record>
         <record id="tier_ellider_4" model="product.pricing.tier">
             <field name="product_tmpl_id" ref="product_ellider_ai_suite"/>
             <field name="sequence">40</field>
             <field name="name">Beds 201–300</field>
             <field name="bracket_size">100</field>
-            <field name="sale_price">6000</field>
-            <field name="min_cutoff">5100</field>
-            <field name="mrp">9600</field>
-            <field name="transfer_price">4615</field>
+            <field name="transfer_price">3600</field>
+            <field name="margin_sale_to_transfer">40</field>
+            <field name="margin_mrp_to_sale">30</field>
         </record>
         <record id="tier_ellider_5" model="product.pricing.tier">
             <field name="product_tmpl_id" ref="product_ellider_ai_suite"/>
             <field name="sequence">50</field>
             <field name="name">Beds 301+</field>
             <field name="bracket_size">0</field>
-            <field name="sale_price">5000</field>
-            <field name="min_cutoff">4250</field>
-            <field name="mrp">8000</field>
-            <field name="transfer_price">3846</field>
+            <field name="transfer_price">3000</field>
+            <field name="margin_sale_to_transfer">40</field>
+            <field name="margin_mrp_to_sale">30</field>
         </record>
 
         <!-- ==================== MODULE: Dental EMR ==================== -->
@@ -118,30 +116,27 @@
             <field name="sequence">10</field>
             <field name="name">First 50 Beds</field>
             <field name="bracket_size">50</field>
-            <field name="sale_price">5000</field>
-            <field name="min_cutoff">4250</field>
-            <field name="mrp">8000</field>
-            <field name="transfer_price">3846</field>
+            <field name="transfer_price">3000</field>
+            <field name="margin_sale_to_transfer">40</field>
+            <field name="margin_mrp_to_sale">30</field>
         </record>
         <record id="tier_dental_2" model="product.pricing.tier">
             <field name="product_tmpl_id" ref="product_dental_emr"/>
             <field name="sequence">20</field>
             <field name="name">Beds 51–100</field>
             <field name="bracket_size">50</field>
-            <field name="sale_price">4000</field>
-            <field name="min_cutoff">3400</field>
-            <field name="mrp">6400</field>
-            <field name="transfer_price">3077</field>
+            <field name="transfer_price">2400</field>
+            <field name="margin_sale_to_transfer">40</field>
+            <field name="margin_mrp_to_sale">30</field>
         </record>
         <record id="tier_dental_3" model="product.pricing.tier">
             <field name="product_tmpl_id" ref="product_dental_emr"/>
             <field name="sequence">30</field>
             <field name="name">Beds 101+</field>
             <field name="bracket_size">0</field>
-            <field name="sale_price">3000</field>
-            <field name="min_cutoff">2550</field>
-            <field name="mrp">4800</field>
-            <field name="transfer_price">2308</field>
+            <field name="transfer_price">1800</field>
+            <field name="margin_sale_to_transfer">40</field>
+            <field name="margin_mrp_to_sale">30</field>
         </record>
 
     </data>

@@ -14,12 +14,6 @@ class SaleOrderLine(models.Model):
         store=True,
         currency_field='currency_id',
     )
-    computed_total_min_cutoff = fields.Monetary(
-        string='CPQ Total (Min Cutoff)',
-        compute='_compute_cpq_pricing',
-        store=True,
-        currency_field='currency_id',
-    )
     computed_total_transfer_price = fields.Monetary(
         string='CPQ Total (Transfer)',
         compute='_compute_cpq_pricing',
@@ -49,9 +43,10 @@ class SaleOrderLine(models.Model):
         'product_id.pricing_tier_ids.sequence',
         'product_id.pricing_tier_ids.bracket_size',
         'product_id.pricing_tier_ids.sale_price',
-        'product_id.pricing_tier_ids.min_cutoff',
         'product_id.pricing_tier_ids.transfer_price',
         'product_id.pricing_tier_ids.mrp',
+        'product_id.pricing_tier_ids.margin_sale_to_transfer',
+        'product_id.pricing_tier_ids.margin_mrp_to_sale',
     )
     def _compute_cpq_pricing(self):
         for line in self:
@@ -65,7 +60,6 @@ class SaleOrderLine(models.Model):
                 or qty <= 0
             ):
                 line.computed_total_sale = 0.0
-                line.computed_total_min_cutoff = 0.0
                 line.computed_total_transfer_price = 0.0
                 line.computed_total_mrp = 0.0
                 line.blended_avg_price = 0.0
@@ -76,7 +70,6 @@ class SaleOrderLine(models.Model):
             )
 
             line.computed_total_sale = totals['sale_price']
-            line.computed_total_min_cutoff = totals['min_cutoff']
             line.computed_total_transfer_price = totals['transfer_price']
             line.computed_total_mrp = totals['mrp']
             line.blended_avg_price = totals['sale_price'] / qty
@@ -93,7 +86,6 @@ class SaleOrderLine(models.Model):
         remaining = qty
         totals = {
             'sale_price': 0.0,
-            'min_cutoff': 0.0,
             'transfer_price': 0.0,
             'mrp': 0.0,
         }
@@ -108,7 +100,6 @@ class SaleOrderLine(models.Model):
                 beds_in_bracket = min(remaining, tier.bracket_size)
 
             totals['sale_price'] += beds_in_bracket * tier.sale_price
-            totals['min_cutoff'] += beds_in_bracket * tier.min_cutoff
             totals['transfer_price'] += beds_in_bracket * tier.transfer_price
             totals['mrp'] += beds_in_bracket * tier.mrp
 

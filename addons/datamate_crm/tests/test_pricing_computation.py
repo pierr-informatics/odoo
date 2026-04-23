@@ -4,13 +4,18 @@ from odoo.tests.common import TransactionCase
 
 
 class TestPricingComputation(TransactionCase):
-    """Test cumulative tax-bracket-style pricing engine."""
+    """Test cumulative tax-bracket-style pricing engine with margin-derived prices."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        # Create a module product with Ellider AI Suite tiers
+        # Tiers use transfer_price + margins; sale_price and mrp are computed.
+        # margin_sale_to_transfer=40 → sale = transfer / 0.60
+        # margin_mrp_to_sale=30     → mrp  = sale   / 0.70
+        # Transfer prices chosen so sale_price is a clean round number:
+        #   6000 → sale=10000,  4800 → sale=8000,  4200 → sale=7000,
+        #   3600 → sale=6000,   3000 → sale=5000
         cls.product = cls.env['product.template'].create({
             'name': 'Ellider AI Suite',
             'type': 'service',
@@ -21,46 +26,41 @@ class TestPricingComputation(TransactionCase):
                     'sequence': 10,
                     'name': 'First 50 Beds',
                     'bracket_size': 50,
-                    'sale_price': 10000,
-                    'min_cutoff': 8500,
-                    'mrp': 16000,
-                    'transfer_price': 7692,
+                    'transfer_price': 6000,
+                    'margin_sale_to_transfer': 40,
+                    'margin_mrp_to_sale': 30,
                 }),
                 (0, 0, {
                     'sequence': 20,
                     'name': 'Beds 51-100',
                     'bracket_size': 50,
-                    'sale_price': 8000,
-                    'min_cutoff': 6800,
-                    'mrp': 12800,
-                    'transfer_price': 6154,
+                    'transfer_price': 4800,
+                    'margin_sale_to_transfer': 40,
+                    'margin_mrp_to_sale': 30,
                 }),
                 (0, 0, {
                     'sequence': 30,
                     'name': 'Beds 101-200',
                     'bracket_size': 100,
-                    'sale_price': 7000,
-                    'min_cutoff': 5950,
-                    'mrp': 11200,
-                    'transfer_price': 5385,
+                    'transfer_price': 4200,
+                    'margin_sale_to_transfer': 40,
+                    'margin_mrp_to_sale': 30,
                 }),
                 (0, 0, {
                     'sequence': 40,
                     'name': 'Beds 201-300',
                     'bracket_size': 100,
-                    'sale_price': 6000,
-                    'min_cutoff': 5100,
-                    'mrp': 9600,
-                    'transfer_price': 4615,
+                    'transfer_price': 3600,
+                    'margin_sale_to_transfer': 40,
+                    'margin_mrp_to_sale': 30,
                 }),
                 (0, 0, {
                     'sequence': 50,
                     'name': 'Beds 301+',
                     'bracket_size': 0,  # Unlimited
-                    'sale_price': 5000,
-                    'min_cutoff': 4250,
-                    'mrp': 8000,
-                    'transfer_price': 3846,
+                    'transfer_price': 3000,
+                    'margin_sale_to_transfer': 40,
+                    'margin_mrp_to_sale': 30,
                 }),
             ],
         })
@@ -79,8 +79,22 @@ class TestPricingComputation(TransactionCase):
         })
         return line
 
+    # --- Derived price formula tests ---
+
+    def test_computed_sale_price_from_margin(self):
+        """sale_price = transfer / (1 - margin_st/100). 6000 / 0.60 = 10000."""
+        tier = self.product.pricing_tier_ids.sorted('sequence')[0]
+        self.assertAlmostEqual(tier.sale_price, 10000.0, places=2)
+
+    def test_computed_mrp_from_margin(self):
+        """mrp = sale / (1 - margin_ms/100). 10000 / 0.70 = 14285.71."""
+        tier = self.product.pricing_tier_ids.sorted('sequence')[0]
+        self.assertAlmostEqual(tier.mrp, 10000.0 / 0.70, places=2)
+
+    # --- Cumulative sale total tests ---
+
     def test_186_beds_example(self):
-        """186 beds: 50×10k + 50×8k + 86×7k = 15,02,000."""
+        """186 beds: 50×10k + 50×8k + 86×7k = 1,502,000."""
         line = self._create_order_line(186)
         expected = (50 * 10000) + (50 * 8000) + (86 * 7000)  # 1502000
         self.assertAlmostEqual(line.computed_total_sale, expected, places=2)
@@ -91,7 +105,7 @@ class TestPricingComputation(TransactionCase):
         line = self._create_order_line(50)
         expected = 50 * 10000  # 500000
         self.assertAlmostEqual(line.computed_total_sale, expected, places=2)
-        self.assertAlmostEqual(line.blended_avg_price, 10000, places=2)
+        self.assertAlmostEqual(line.blended_avg_price, 10000.0, places=2)
 
     def test_boundary_100_beds(self):
         """100 beds fills tier 1 + tier 2 exactly."""
@@ -111,27 +125,24 @@ class TestPricingComputation(TransactionCase):
         self.assertAlmostEqual(line.computed_total_sale, 0.0, places=2)
         self.assertAlmostEqual(line.blended_avg_price, 0.0, places=2)
 
-    def test_min_cutoff_186_beds(self):
-        """Verify min_cutoff cumulative total for 186 beds."""
-        line = self._create_order_line(186)
-        expected = (50 * 8500) + (50 * 6800) + (86 * 5950)
-        self.assertAlmostEqual(line.computed_total_min_cutoff, expected, places=2)
-
     def test_transfer_price_186_beds(self):
         """Verify transfer_price cumulative total for 186 beds."""
         line = self._create_order_line(186)
-        expected = (50 * 7692) + (50 * 6154) + (86 * 5385)
+        expected = (50 * 6000) + (50 * 4800) + (86 * 4200)  # 901200
         self.assertAlmostEqual(line.computed_total_transfer_price, expected, places=2)
 
     def test_mrp_186_beds(self):
-        """Verify MRP cumulative total for 186 beds."""
+        """Verify MRP cumulative total for 186 beds using stored (rounded) mrp values."""
+        tiers = self.product.pricing_tier_ids.sorted('sequence')
+        t1_mrp, t2_mrp, t3_mrp = tiers[0].mrp, tiers[1].mrp, tiers[2].mrp
+        expected = (50 * t1_mrp) + (50 * t2_mrp) + (86 * t3_mrp)
         line = self._create_order_line(186)
-        expected = (50 * 16000) + (50 * 12800) + (86 * 11200)
         self.assertAlmostEqual(line.computed_total_mrp, expected, places=2)
 
     def test_price_unit_is_blended_average(self):
-        """price_unit on the SO line should be the blended average."""
+        """price_unit on the SO line should equal the blended average."""
         line = self._create_order_line(186)
         expected_total = (50 * 10000) + (50 * 8000) + (86 * 7000)
         expected_avg = expected_total / 186
         self.assertAlmostEqual(line.price_unit, expected_avg, places=2)
+
